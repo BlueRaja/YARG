@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -101,6 +101,11 @@ namespace YARG.Localization
         public static string ToLocalizedName(this StarPowerActivationType starPowerActivationType)
         {
             return Key("Enum.StarPowerActivationType", starPowerActivationType);
+        }
+
+        public static string ToLocalizedName(this LanesToShowCymbals lanesToShowCymbals)
+        {
+            return Key("Enum.LanesToShowCymbals", lanesToShowCymbals);
         }
 
         public static string ToLocalizedName(this Instrument instrument)

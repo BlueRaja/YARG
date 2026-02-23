@@ -1,4 +1,4 @@
-﻿{
+{
     "Language": {
         "Name": "English",
         "Region": "United States",
@@ -110,6 +110,12 @@
             "RightmostLane": "Rightmost Lane",
             "RightmostNote": "Rightmost Note",
             "AllNotes": "All Notes"
+        },
+        "LanesToShowCymbals": {
+            "Lanes234": "2, 3, 4 (Default)",
+            "Lanes134": "1, 3, 4",
+            "Lanes124": "1, 2, 4",
+            "Lanes123": "1, 2, 3"
         }
     },
     "Menu": {

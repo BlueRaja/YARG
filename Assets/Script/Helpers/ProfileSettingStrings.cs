@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +22,7 @@ namespace YARG.Assets.Script.Helpers
         // GameMode-specific
         public const string LEFTY_FLIP                              = "Lefty Flip";
         public const string RANGE_DISABLE                           = "Range Disable";
+        public const string LANES_TO_SHOW_CYMBALS                   = "Lanes to Show Cymbals";
         public const string SPLIT_TOM_AND_CYMBAL_LANES_IN_PRO_DRUMS = "Split Tom and Cymbal Lanes in Pro Drums";
         public const string USE_CYMBAL_MODELS                       = "Use Cymbal Models";
         public const string SWAP_SNARE_AND_HI_HAT                   = "Swap Snare and Hi-Hat";

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -42,6 +42,14 @@ namespace YARG.Menu.ProfileList
             StarPowerActivationType.AllNotes,
         };
 
+        private static readonly LanesToShowCymbals[] _lanesToShowCymbalsOptions =
+        {
+            LanesToShowCymbals.Lanes234,
+            LanesToShowCymbals.Lanes134,
+            LanesToShowCymbals.Lanes124,
+            LanesToShowCymbals.Lanes123,
+        };
+
         [SerializeField]
         private GameObject _contents;
         [SerializeField]
@@ -70,6 +78,8 @@ namespace YARG.Menu.ProfileList
         private Toggle _rangeDisabledToggle;
         [SerializeField]
         private Toggle _useCymbalModelsToggle;
+        [SerializeField]
+        private TMP_Dropdown _lanesToShowCymbalsDropdown;
         [SerializeField]
         private Toggle _splitProTomsAndCymbals;
         [SerializeField]
@@ -112,6 +122,7 @@ namespace YARG.Menu.ProfileList
 
         private readonly List<GameMode> _gameModesByIndex = new();
         private readonly List<StarPowerActivationType> _starPowerActivationTypesByIndex = new();
+        private readonly List<LanesToShowCymbals> _lanesToShowCymbalsByIndex = new();
 
         private List<Guid> _enginePresetsByIndex;
         private List<Guid> _colorProfilesByIndex;
@@ -168,6 +179,15 @@ namespace YARG.Menu.ProfileList
             {
                 _starPowerActivationTypesByIndex.Add(starPowerActivationType);
                 _starPowerActivationTypeDropdown.options.Add(new(starPowerActivationType.ToLocalizedName()));
+            }
+
+            // Set lanes to show cymbals
+            _lanesToShowCymbalsByIndex.Clear();
+            _lanesToShowCymbalsDropdown.options.Clear();
+            foreach (var option in _lanesToShowCymbalsOptions)
+            {
+                _lanesToShowCymbalsByIndex.Add(option);
+                _lanesToShowCymbalsDropdown.options.Add(new(option.ToLocalizedName()));
             }
         }
 
@@ -237,6 +257,7 @@ namespace YARG.Menu.ProfileList
             _leftyFlipToggle.isOn = profile.LeftyFlip;
             _rangeDisabledToggle.isOn = profile.RangeEnabled;
             _useCymbalModelsToggle.isOn = profile.UseCymbalModels;
+            _lanesToShowCymbalsDropdown.value = _lanesToShowCymbalsByIndex.IndexOf(profile.LanesToShowCymbals);
             _splitProTomsAndCymbals.isOn = profile.SplitProTomsAndCymbals;
             _swapSnareAndHiHat.isOn = profile.SwapSnareAndHiHat;
             _swapCrashAndRide.isOn = profile.SwapCrashAndRide;
@@ -252,6 +273,8 @@ namespace YARG.Menu.ProfileList
                 _cameraPresetsByIndex.IndexOf(profile.CameraPreset));
             _highwayPresetDropdown.SetValueWithoutNotify(
                 _highwayPresetsByIndex.IndexOf(profile.HighwayPreset));
+            _lanesToShowCymbalsDropdown.SetValueWithoutNotify(
+                _lanesToShowCymbalsByIndex.IndexOf(profile.LanesToShowCymbals));
             _starPowerActivationTypeDropdown.SetValueWithoutNotify(
                 _starPowerActivationTypesByIndex.IndexOf(profile.StarPowerActivationType));
             _rockMeterPresetDropdown.SetValueWithoutNotify(
@@ -423,6 +446,11 @@ namespace YARG.Menu.ProfileList
         public void ChangeUseCymbalModels()
         {
             _profile.UseCymbalModels = _useCymbalModelsToggle.isOn;
+        }
+
+        public void ChangeLanesToShowCymbals()
+        {
+            _profile.LanesToShowCymbals = _lanesToShowCymbalsByIndex[_lanesToShowCymbalsDropdown.value];
         }
 
         public void ChangeSplitProTomsAndCymbals()

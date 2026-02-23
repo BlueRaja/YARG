@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using YARG.Assets.Script.Helpers;
@@ -65,6 +65,7 @@ namespace YARG.Helpers.Extensions
                 GameMode.EliteDrums => new()
                 {
                     (ProfileSettingStrings.LEFTY_FLIP, null),
+                    (ProfileSettingStrings.LANES_TO_SHOW_CYMBALS, "LANES TO SHOW CYMBALS"),
                     (ProfileSettingStrings.SPLIT_TOM_AND_CYMBAL_LANES_IN_PRO_DRUMS, null),
                     (ProfileSettingStrings.DRUM_STAR_POWER_ACTIVATION_TYPE, null),
                     (ProfileSettingStrings.USE_CYMBAL_MODELS, "USE CYMBAL MODELS IN 5-LANE"),
@@ -76,6 +77,7 @@ namespace YARG.Helpers.Extensions
                 GameMode.FourLaneDrums => new()
                 {
                     (ProfileSettingStrings.LEFTY_FLIP, null),
+                    (ProfileSettingStrings.LANES_TO_SHOW_CYMBALS, "LANES TO SHOW CYMBALS"),
                     (ProfileSettingStrings.SPLIT_TOM_AND_CYMBAL_LANES_IN_PRO_DRUMS, null),
                     (ProfileSettingStrings.DRUM_STAR_POWER_ACTIVATION_TYPE, null),
                 },
