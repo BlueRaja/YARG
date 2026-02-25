@@ -146,10 +146,7 @@ namespace YARG.Assets.Script.Gameplay.Player
                 Player.ThemePreset,
                 VisualStyle.FiveLaneKeys,
                 Player.ColorProfile.FiveFretGuitar,
-                Player.Profile.LeftyFlip,
-                false, // Not applicable to five fret
-                false, // Not applicable to five fret
-                false  // Not applicable to five fret
+                Player.Profile.LeftyFlip
                 );
 
             if (Player.Profile.RangeEnabled)
