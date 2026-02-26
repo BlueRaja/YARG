@@ -39,18 +39,34 @@ namespace YARG.Gameplay.Player.Drums
 #region GetFret methods
         public int GetFret(DrumsAction action)
         {
-            var pad = action switch
+            if (IsFiveLaneMode)
             {
-                DrumsAction.RedDrum => (int)FourLaneDrumPad.RedDrum,
-                DrumsAction.YellowDrum => (int)FourLaneDrumPad.YellowDrum,
-                DrumsAction.BlueDrum => (int)FourLaneDrumPad.BlueDrum,
-                DrumsAction.GreenDrum => (int)FourLaneDrumPad.GreenDrum,
-                DrumsAction.YellowCymbal => (int)FourLaneDrumPad.YellowCymbal,
-                DrumsAction.BlueCymbal => (int)FourLaneDrumPad.BlueCymbal,
-                DrumsAction.GreenCymbal => (int)FourLaneDrumPad.GreenCymbal,
-                _ => -1,
-            };
-            return GetFret(pad);
+                var pad = action switch
+                {
+                    DrumsAction.RedDrum => (int)FiveLaneDrumPad.Red,
+                    DrumsAction.YellowCymbal => (int)FiveLaneDrumPad.Yellow,
+                    DrumsAction.BlueDrum => (int)FiveLaneDrumPad.Blue,
+                    DrumsAction.OrangeCymbal => (int)FiveLaneDrumPad.Orange,
+                    DrumsAction.GreenDrum => (int)FiveLaneDrumPad.Green,
+                    _ => -1,
+                };
+                return GetFret(pad);
+            }
+            else
+            {
+                var pad = action switch
+                {
+                    DrumsAction.RedDrum      => (int) FourLaneDrumPad.RedDrum,
+                    DrumsAction.YellowDrum   => (int) FourLaneDrumPad.YellowDrum,
+                    DrumsAction.BlueDrum     => (int) FourLaneDrumPad.BlueDrum,
+                    DrumsAction.GreenDrum    => (int) FourLaneDrumPad.GreenDrum,
+                    DrumsAction.YellowCymbal => (int) FourLaneDrumPad.YellowCymbal,
+                    DrumsAction.BlueCymbal   => (int) FourLaneDrumPad.BlueCymbal,
+                    DrumsAction.GreenCymbal  => (int) FourLaneDrumPad.GreenCymbal,
+                    _                        => -1,
+                };
+                return GetFret(pad);
+            }
         }
 
         public int GetFret(int pad)
@@ -192,6 +208,12 @@ namespace YARG.Gameplay.Player.Drums
 
         public int GetDisplayLane(int pad)
         {
+            if (IsFiveLaneMode)
+            {
+                // Five lane pads (FiveLaneDrumPad) are 0-5 and map directly to display lane indices
+                return pad;
+            }
+
             var (leftCymbalLane, midCymbalLane, rightCymbalLane) = GetCymbalDisplayLanes();
             var (redDrum, yellowDrum, blueDrum, greenDrum) = GetDrumDisplayLanes();
 
