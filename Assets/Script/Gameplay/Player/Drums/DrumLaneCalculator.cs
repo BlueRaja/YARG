@@ -39,57 +39,18 @@ namespace YARG.Gameplay.Player.Drums
 #region GetFret methods
         public int GetFret(DrumsAction action)
         {
-            if (IsFiveLaneMode)
+            var pad = action switch
             {
-                return GetFiveLaneFret(action);
-            }
-
-            if (IsSplitMode)
-            {
-                return GetSplitFret(action);
-            }
-
-            return GetFourLaneFret(action);
-        }
-
-        private static int GetFourLaneFret(DrumsAction action)
-        {
-            return action switch
-            {
-                DrumsAction.RedDrum                                => 0,
-                DrumsAction.YellowDrum or DrumsAction.YellowCymbal => 1,
-                DrumsAction.BlueDrum or DrumsAction.BlueCymbal     => 2,
-                DrumsAction.GreenDrum or DrumsAction.GreenCymbal   => 3,
-                _                                                  => -1,
+                DrumsAction.RedDrum => (int)FourLaneDrumPad.RedDrum,
+                DrumsAction.YellowDrum => (int)FourLaneDrumPad.YellowDrum,
+                DrumsAction.BlueDrum => (int)FourLaneDrumPad.BlueDrum,
+                DrumsAction.GreenDrum => (int)FourLaneDrumPad.GreenDrum,
+                DrumsAction.YellowCymbal => (int)FourLaneDrumPad.YellowCymbal,
+                DrumsAction.BlueCymbal => (int)FourLaneDrumPad.BlueCymbal,
+                DrumsAction.GreenCymbal => (int)FourLaneDrumPad.GreenCymbal,
+                _ => -1,
             };
-        }
-
-        private static int GetFiveLaneFret(DrumsAction action)
-        {
-            return action switch
-            {
-                DrumsAction.RedDrum      => 0,
-                DrumsAction.YellowCymbal => 1,
-                DrumsAction.BlueDrum     => 2,
-                DrumsAction.OrangeCymbal => 3,
-                DrumsAction.GreenDrum    => 4,
-                _                        => -1,
-            };
-        }
-
-        private static int GetSplitFret(DrumsAction action)
-        {
-            return action switch
-            {
-                DrumsAction.RedDrum      => 0,
-                DrumsAction.YellowCymbal => 1,
-                DrumsAction.YellowDrum   => 2,
-                DrumsAction.BlueCymbal   => 3,
-                DrumsAction.BlueDrum     => 4,
-                DrumsAction.GreenCymbal  => 5,
-                DrumsAction.GreenDrum    => 6,
-                _                        => -1,
-            };
+            return GetFret(pad);
         }
 
         public int GetFret(int pad)
