@@ -40,9 +40,7 @@ namespace YARG.Gameplay.Visuals
         public void Initialize(ThemePreset themePreset, VisualStyle style,
             ColorProfile.IFretColorProvider fretColorProvider, bool leftyFlip)
         {
-            var range = Enumerable.Range(1, FretCount);
-            // Slight hack: Prepend a useless 0 because the frets are 1-indexed
-            var fretIndices = new[] { 0 }.Concat(leftyFlip ? range.Reverse() : range);
+            var fretIndices = Enumerable.Range(0, FretCount+1);
             Initialize(themePreset, style, 
                 fretIndices.Select(fretColorProvider.GetFretColor).ToArray(),
                 fretIndices.Select(fretColorProvider.GetFretInnerColor).ToArray(),
