@@ -26,7 +26,7 @@ namespace YARG.Gameplay.Visuals
 
                 if (Player.EngineParams.Mode is Core.Engine.Drums.DrumsEngineParameters.DrumMode.ProFourLane)
                 {
-                    laneCount = Player.Player.Profile.SplitProTomsAndCymbals ? 7 : 4;
+                    laneCount = Player.DrumLaneCalculator.FretCount;
                     lane = Player.DrumLaneCalculator.GetDisplayLane(NoteRef.Pad);
                 }
                 else

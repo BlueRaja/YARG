@@ -19,7 +19,6 @@ namespace YARG.Gameplay.Visuals
         private const float WIDTH_DENOMINATOR = 5f;
 
         public int FretCount;
-        public bool DontFlipColorsLeftyFlip;
         public bool UseKickFrets;
 
         [SerializeField]
@@ -124,19 +123,11 @@ namespace YARG.Gameplay.Visuals
             }
             for (int i = 0; i < _frets.Count; i++)
             {
-                // This needs unique lefty flip logic because it's the one case where
-                // the fret order is different from the color profile order
-                int index = i + 1;
-                if (DontFlipColorsLeftyFlip && leftyFlip)
-                {
-                    index = _frets.Count - index + 1;
-                }
-
                 _frets[i].Initialize(
-                    fretColors[index],
-                    fretInnerColors[index],
-                    fretParticleColors[index],
-                    fretOpenParticleColors[index]
+                    fretColors[i+1],
+                    fretInnerColors[i+1],
+                    fretParticleColors[i+1],
+                    fretOpenParticleColors[i+1]
                 );
             }
 

@@ -27,6 +27,7 @@ namespace YARG.Gameplay.Player.Drums
         public bool IsSplitMode => Player.Profile.CurrentInstrument is Instrument.ProDrums && Player.Profile.SplitProTomsAndCymbals;
         private bool ShouldSwapSnareAndHiHat => (IsFiveLaneMode || IsSplitMode) && Player.Profile.SwapSnareAndHiHat;
         private bool ShouldSwapCrashAndRide => IsSplitMode && Player.Profile.SwapCrashAndRide;
+        private bool LeftyFlip => Player.Profile.LeftyFlip;
 
         public DrumLaneCalculator(YargPlayer player)
         {
@@ -245,11 +246,6 @@ namespace YARG.Gameplay.Player.Drums
                 _ => -1,
             };
 
-            if(Player.Profile.LeftyFlip)
-            {
-                index = FretCount - index + 1;
-            }
-
             return index;
         }
 #endregion
@@ -269,7 +265,7 @@ namespace YARG.Gameplay.Player.Drums
         public ColorProfileIndex GetPadColorIndex(int pad)
         {
             var (leftCymbalColor, midCymbalColor, rightCymbalColor) = GetCymbalColors();
-            return (FourLaneDrumPad)pad switch
+            var color = (FourLaneDrumPad)pad switch
             {
                 FourLaneDrumPad.Kick         => ColorProfileIndex.Kick,
                 FourLaneDrumPad.RedDrum      => ColorProfileIndex.RedDrum,
@@ -281,6 +277,7 @@ namespace YARG.Gameplay.Player.Drums
                 FourLaneDrumPad.GreenCymbal  => rightCymbalColor,
                 _ => ColorProfileIndex.RedDrum,
             };
+            return LeftyFlip ? UpdateColorForLeftyFlip(color) : color;
         }
 
         private (ColorProfileIndex leftCymbalColor, ColorProfileIndex midCymbalColor, ColorProfileIndex rightCymbalColor) GetCymbalColors()
@@ -292,6 +289,27 @@ namespace YARG.Gameplay.Player.Drums
                 LanesToShowCymbals.Lanes124 => (ColorProfileIndex.RedCymbal, ColorProfileIndex.YellowCymbal, ColorProfileIndex.GreenCymbal),
                 LanesToShowCymbals.Lanes123 => (ColorProfileIndex.RedCymbal, ColorProfileIndex.YellowCymbal, ColorProfileIndex.BlueCymbal),
                 _ => (ColorProfileIndex.YellowCymbal, ColorProfileIndex.BlueCymbal, ColorProfileIndex.GreenCymbal),
+            };
+        }
+
+        private ColorProfileIndex UpdateColorForLeftyFlip(ColorProfileIndex color)
+        {
+            // When LeftyMode is enabled, the lanes are switched visually, but not internally.
+            // This leads to the colors being wrong, so we need to swap them around.
+            return color switch
+            {
+                ColorProfileIndex.RedDrum => ColorProfileIndex.GreenDrum,
+                ColorProfileIndex.YellowDrum => ColorProfileIndex.BlueDrum,
+                ColorProfileIndex.BlueDrum => ColorProfileIndex.YellowDrum,
+                ColorProfileIndex.GreenDrum => ColorProfileIndex.RedDrum,
+
+                // We still associate each cymbal with the drum to its right, so the color associations
+                // end up different for cymbals than drums
+                ColorProfileIndex.RedCymbal => ColorProfileIndex.GreenCymbal,
+                ColorProfileIndex.YellowCymbal => ColorProfileIndex.BlueCymbal,
+                ColorProfileIndex.BlueCymbal => ColorProfileIndex.YellowCymbal,
+                ColorProfileIndex.GreenCymbal => ColorProfileIndex.RedCymbal, 
+                _ => color,
             };
         }
 #endregion
