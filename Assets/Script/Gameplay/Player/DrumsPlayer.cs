@@ -188,20 +188,7 @@ namespace YARG.Gameplay.Player
                     continue;
                 }
 
-                int fillLane = rightmostNote.Pad;
-
-                // Convert pad to lane for pro
-                if (Player.Profile.CurrentInstrument == Instrument.ProDrums)
-                {
-                    if (DrumLaneCalculator.IsSplitMode)
-                    {
-                        fillLane = fillLane == 0 ? 0 : 7;
-                    }
-                    else if (fillLane > 4)
-                    {
-                        fillLane -= 3;
-                    }
-                }
+                int fillLane = DrumLaneCalculator.GetDisplayLane(rightmostNote.Pad);
 
                 int candidateIndex = -1;
 
