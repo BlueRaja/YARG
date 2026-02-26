@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using YARG.Core;
 using YARG.Core.Chart;
 using YARG.Core.Game;
 using YARG.Core.Logging;
 using YARG.Themes;
+using Color = System.Drawing.Color;
 using static YARG.Themes.ThemeManager;
 
 namespace YARG.Gameplay.Visuals
@@ -37,6 +40,19 @@ namespace YARG.Gameplay.Visuals
 
         public void Initialize(ThemePreset themePreset, VisualStyle style,
             ColorProfile.IFretColorProvider fretColorProvider, bool leftyFlip)
+        {
+            var fretIndices = Enumerable.Range(1, FretCount+1);
+            Initialize(themePreset, style, 
+                fretIndices.Select(fretColorProvider.GetFretColor).ToArray(),
+                fretIndices.Select(fretColorProvider.GetFretInnerColor).ToArray(),
+                fretIndices.Select(fretColorProvider.GetParticleColor).ToArray(), 
+                fretIndices.Select(i => fretColorProvider.GetParticleColor(0 /* open note */)).ToArray(),
+                fretColorProvider.GetFretColor(0),
+                leftyFlip);
+        }
+        public void Initialize(ThemePreset themePreset, VisualStyle style,
+            Color[] fretColors, Color[] fretInnerColors, Color[] fretParticleColors,
+            Color[] fretOpenParticleColors, Color kickColor, bool leftyFlip)
         {
             var fretPrefab = ThemeManager.Instance.CreateFretPrefabFromTheme(
                 themePreset, style);
@@ -84,7 +100,7 @@ namespace YARG.Gameplay.Visuals
                 _kickFrets.Add(rightKick.GetComponent<KickFret>());
             }
 
-            InitializeColor(fretColorProvider, leftyFlip);
+            InitializeColor(fretColors, fretInnerColors, fretParticleColors, fretOpenParticleColors, kickColor, leftyFlip);
 
             _activeFrets = new bool[FretCount];
             _pulsingFrets = new bool[FretCount];
@@ -95,8 +111,17 @@ namespace YARG.Gameplay.Visuals
             }
         }
 
-        public void InitializeColor(ColorProfile.IFretColorProvider fretColorProvider, bool leftyFlip)
+        private void InitializeColor(Color[] fretColors, Color[] fretInnerColors, Color[] fretParticleColors,
+            Color[] fretOpenParticleColors, Color kickColor, bool leftyFlip)
         {
+            if(fretColors.Length != FretCount + 1
+                || fretInnerColors.Length != FretCount + 1
+                || fretParticleColors.Length != FretCount + 1
+                || fretOpenParticleColors.Length != FretCount + 1)
+            {
+                YargLogger.LogFormatError("Received inconsistent fret array. Got {0} colors, {1} inner colors, {2} particle colors, and {3} open particle colors, but expected {4}.", fretColors.Length, fretInnerColors.Length, fretParticleColors.Length, fretOpenParticleColors.Length, FretCount+1);
+                return;
+            }
             for (int i = 0; i < _frets.Count; i++)
             {
                 // This needs unique lefty flip logic because it's the one case where
@@ -108,16 +133,16 @@ namespace YARG.Gameplay.Visuals
                 }
 
                 _frets[i].Initialize(
-                    fretColorProvider.GetFretColor(index),
-                    fretColorProvider.GetFretInnerColor(index),
-                    fretColorProvider.GetParticleColor(index),
-                    fretColorProvider.GetParticleColor(0 /* open note */)
+                    fretColors[index],
+                    fretInnerColors[index],
+                    fretParticleColors[index],
+                    fretOpenParticleColors[index]
                 );
             }
 
             foreach (var kick in _kickFrets)
             {
-                kick.Initialize(fretColorProvider.GetFretColor(0));
+                kick.Initialize(kickColor);
             }
         }
 

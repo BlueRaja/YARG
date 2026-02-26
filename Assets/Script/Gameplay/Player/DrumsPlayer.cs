@@ -17,6 +17,7 @@ using YARG.Helpers.Extensions;
 using YARG.Player;
 using YARG.Settings;
 using YARG.Themes;
+using Color = System.Drawing.Color;
 
 namespace YARG.Gameplay.Player
 {
@@ -118,22 +119,38 @@ namespace YARG.Gameplay.Player
         {
             StarScoreThresholds = PopulateStarScoreThresholds(StarMultiplierThresholds, Engine.BaseScore);
 
-            // Get the proper info for four/five lane
-            ColorProfile.IFretColorProvider colors = DrumLaneCalculator.IsFiveLaneMode
-                ? Player.ColorProfile.FiveLaneDrums
-                : Player.ColorProfile.FourLaneDrums;
-
             _fretArray.FretCount = DrumLaneCalculator.FretCount;
-            _fretArray.Initialize(
-                Player.ThemePreset,
-                DrumLaneCalculator.IsFiveLaneMode ? VisualStyle.FiveLaneDrums : VisualStyle.FourLaneDrums,
-                colors,
-                Player.Profile.LeftyFlip
-            );
-
-            // Particle 0 is always kick fret
-            _kickFretFlash.Initialize(colors.GetParticleColor(0).ToUnityColor());
-
+            if(DrumLaneCalculator.IsFiveLaneMode)
+            {
+                _fretArray.Initialize(
+                    Player.ThemePreset,
+                    VisualStyle.FiveLaneDrums,
+                    Player.ColorProfile.FiveLaneDrums,
+                    Player.Profile.LeftyFlip
+                );
+                _kickFretFlash.Initialize(Player.ColorProfile.FiveLaneDrums.GetParticleColor(0).ToUnityColor());
+            }
+            else
+            {
+                var drumLaneColors = DrumLaneCalculator.GetDrumLaneColors().Cast<int>();
+                Color[] fretColors = drumLaneColors.Select(Player.ColorProfile.FourLaneDrums.GetFretColor).ToArray();
+                Color[] fretInnerColors = drumLaneColors.Select(Player.ColorProfile.FourLaneDrums.GetFretInnerColor).ToArray();
+                Color[] fretParticleColors = drumLaneColors.Select(Player.ColorProfile.FourLaneDrums.GetParticleColor).ToArray();
+                Color[] fretOpenParticleColors = drumLaneColors.Select(i => Player.ColorProfile.FourLaneDrums.GetParticleColor(0)).ToArray();
+                Color kickColor = Player.ColorProfile.FourLaneDrums.GetFretColor(0);
+                _fretArray.Initialize(
+                    Player.ThemePreset,
+                    VisualStyle.FourLaneDrums,
+                    fretColors,
+                    fretInnerColors,
+                    fretParticleColors,
+                    fretOpenParticleColors,
+                    kickColor,
+                    Player.Profile.LeftyFlip
+                );
+                _kickFretFlash.Initialize(Player.ColorProfile.FourLaneDrums.GetParticleColor(0).ToUnityColor());
+            }
+            
             // Initialize drum activation notes
             NoteTrack.SetDrumActivationFlags(Player.Profile.StarPowerActivationType);
             Notes = NoteTrack.Notes;

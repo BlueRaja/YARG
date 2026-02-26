@@ -255,6 +255,17 @@ namespace YARG.Gameplay.Player.Drums
 #endregion
 
 #region Colors
+        public ColorProfileIndex[] GetDrumLaneColors()
+        {
+            var drums = new[] { (int)FourLaneDrumPad.RedDrum, (int)FourLaneDrumPad.YellowDrum, (int)FourLaneDrumPad.BlueDrum, (int)FourLaneDrumPad.GreenDrum };
+            var cymbals = new[] { (int)FourLaneDrumPad.YellowCymbal, (int)FourLaneDrumPad.BlueCymbal, (int)FourLaneDrumPad.GreenCymbal };
+            var pads = IsSplitMode
+                ? drums.Concat(cymbals).ToArray()
+                : drums;
+            var colorsByLane = pads.ToDictionary(pad => GetDisplayLane(pad), GetPadColorIndex);
+            return Enumerable.Range(0, FretCount + 1).Select(i => colorsByLane.GetValueOrDefault(i)).ToArray();
+        }
+
         public ColorProfileIndex GetPadColorIndex(int pad)
         {
             var (leftCymbalColor, midCymbalColor, rightCymbalColor) = GetCymbalColors();

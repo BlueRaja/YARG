@@ -334,7 +334,10 @@ namespace YARG.Settings.Preview
             // Update color profiles
             if (!CurrentGameModeInfo.UseProKeys)
             {
-                _fretArray.InitializeColor(CurrentGameModeInfo.FretColorProvider(colorProfile), false);
+                var theme = ThemePreset.Default;
+                var style = VisualStyleHelpers.GetVisualStyle(SelectedGameMode, Instrument.FiveFretGuitar);
+                var colorProvider = CurrentGameModeInfo.FretColorProvider(colorProfile);
+                _fretArray.Initialize(theme, style, colorProvider, false);
             }
 
             // Update hit window
