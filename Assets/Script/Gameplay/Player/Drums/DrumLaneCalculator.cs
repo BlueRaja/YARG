@@ -214,6 +214,13 @@ namespace YARG.Gameplay.Player.Drums
 #region Colors
         public ColorProfileIndex[] GetDrumLaneColors()
         {
+            if(IsFiveLaneMode)
+            {
+                // Small hack: The two ColorProfileIndex enums aren't technically swappable, but they're immediately being passed to the
+                // correct ColorProfile so it doesn't really matter
+                return Get5LaneDrumLaneColors().Cast<ColorProfileIndex>().ToArray();
+            }
+            
             var drums = new[] { (int)FourLaneDrumPad.RedDrum, (int)FourLaneDrumPad.YellowDrum, (int)FourLaneDrumPad.BlueDrum, (int)FourLaneDrumPad.GreenDrum };
             var cymbals = new[] { (int)FourLaneDrumPad.YellowCymbal, (int)FourLaneDrumPad.BlueCymbal, (int)FourLaneDrumPad.GreenCymbal };
             var pads = IsSplitMode
@@ -221,6 +228,26 @@ namespace YARG.Gameplay.Player.Drums
                 : drums;
             var colorsByLane = pads.ToDictionary(pad => GetDisplayLane(pad), GetPadColorIndex);
             return Enumerable.Range(0, FretCount + 1).Select(i => colorsByLane.GetValueOrDefault(i)).ToArray();
+        }
+
+        private ColorProfile.FiveLaneDrumsColors.ColorProfileIndex[] Get5LaneDrumLaneColors()
+        {
+            ColorProfile.FiveLaneDrumsColors.ColorProfileIndex[] drumOrder = {
+                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.RedDrum,
+                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.YellowDrum,
+                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.BlueDrum,
+                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.OrangeDrum,
+                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.GreenDrum
+            };
+            if(LeftyFlip)
+            {
+                drumOrder = drumOrder.Reverse().ToArray();
+            }
+            if(ShouldSwapSnareAndHiHat)
+            {
+                (drumOrder[0], drumOrder[1]) = (drumOrder[1], drumOrder[0]);
+            }
+            return new[] { ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.Kick }.Concat(drumOrder).ToArray();
         }
 
         public ColorProfileIndex GetPadColorIndex(int pad)

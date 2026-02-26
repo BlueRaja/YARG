@@ -40,7 +40,9 @@ namespace YARG.Gameplay.Visuals
         public void Initialize(ThemePreset themePreset, VisualStyle style,
             ColorProfile.IFretColorProvider fretColorProvider, bool leftyFlip)
         {
-            var fretIndices = Enumerable.Range(1, FretCount+1);
+            var range = Enumerable.Range(1, FretCount);
+            // Slight hack: Prepend a useless 0 because the frets are 1-indexed
+            var fretIndices = new[] { 0 }.Concat(leftyFlip ? range.Reverse() : range);
             Initialize(themePreset, style, 
                 fretIndices.Select(fretColorProvider.GetFretColor).ToArray(),
                 fretIndices.Select(fretColorProvider.GetFretInnerColor).ToArray(),
@@ -49,6 +51,11 @@ namespace YARG.Gameplay.Visuals
                 fretColorProvider.GetFretColor(0),
                 leftyFlip);
         }
+
+        /**
+         * Initializes the fret array with the given colors.
+         * Colors are assumed to have already been flipped for lefty mode.
+         **/
         public void Initialize(ThemePreset themePreset, VisualStyle style,
             Color[] fretColors, Color[] fretInnerColors, Color[] fretParticleColors,
             Color[] fretOpenParticleColors, Color kickColor, bool leftyFlip)
@@ -99,7 +106,7 @@ namespace YARG.Gameplay.Visuals
                 _kickFrets.Add(rightKick.GetComponent<KickFret>());
             }
 
-            InitializeColor(fretColors, fretInnerColors, fretParticleColors, fretOpenParticleColors, kickColor, leftyFlip);
+            InitializeColor(fretColors, fretInnerColors, fretParticleColors, fretOpenParticleColors, kickColor);
 
             _activeFrets = new bool[FretCount];
             _pulsingFrets = new bool[FretCount];
@@ -111,7 +118,7 @@ namespace YARG.Gameplay.Visuals
         }
 
         private void InitializeColor(Color[] fretColors, Color[] fretInnerColors, Color[] fretParticleColors,
-            Color[] fretOpenParticleColors, Color kickColor, bool leftyFlip)
+            Color[] fretOpenParticleColors, Color kickColor)
         {
             if(fretColors.Length != FretCount + 1
                 || fretInnerColors.Length != FretCount + 1

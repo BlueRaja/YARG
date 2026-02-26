@@ -11,12 +11,13 @@ using YARG.Core.Game;
 using YARG.Core.Input;
 using YARG.Core.Replays;
 using YARG.Gameplay.HUD;
-using YARG.Gameplay.Visuals;
 using YARG.Gameplay.Player.Drums;
+using YARG.Gameplay.Visuals;
 using YARG.Helpers.Extensions;
 using YARG.Player;
 using YARG.Settings;
 using YARG.Themes;
+using static YARG.Core.Game.ColorProfile;
 using Color = System.Drawing.Color;
 
 namespace YARG.Gameplay.Player
@@ -120,36 +121,26 @@ namespace YARG.Gameplay.Player
             StarScoreThresholds = PopulateStarScoreThresholds(StarMultiplierThresholds, Engine.BaseScore);
 
             _fretArray.FretCount = DrumLaneCalculator.FretCount;
-            if(DrumLaneCalculator.IsFiveLaneMode)
-            {
-                _fretArray.Initialize(
-                    Player.ThemePreset,
-                    VisualStyle.FiveLaneDrums,
-                    Player.ColorProfile.FiveLaneDrums,
-                    Player.Profile.LeftyFlip
-                );
-                _kickFretFlash.Initialize(Player.ColorProfile.FiveLaneDrums.GetParticleColor(0).ToUnityColor());
-            }
-            else
-            {
-                var drumLaneColors = DrumLaneCalculator.GetDrumLaneColors().Cast<int>();
-                Color[] fretColors = drumLaneColors.Select(Player.ColorProfile.FourLaneDrums.GetFretColor).ToArray();
-                Color[] fretInnerColors = drumLaneColors.Select(Player.ColorProfile.FourLaneDrums.GetFretInnerColor).ToArray();
-                Color[] fretParticleColors = drumLaneColors.Select(Player.ColorProfile.FourLaneDrums.GetParticleColor).ToArray();
-                Color[] fretOpenParticleColors = drumLaneColors.Select(i => Player.ColorProfile.FourLaneDrums.GetParticleColor(0)).ToArray();
-                Color kickColor = Player.ColorProfile.FourLaneDrums.GetFretColor(0);
-                _fretArray.Initialize(
-                    Player.ThemePreset,
-                    VisualStyle.FourLaneDrums,
-                    fretColors,
-                    fretInnerColors,
-                    fretParticleColors,
-                    fretOpenParticleColors,
-                    kickColor,
-                    Player.Profile.LeftyFlip
-                );
-                _kickFretFlash.Initialize(Player.ColorProfile.FourLaneDrums.GetParticleColor(0).ToUnityColor());
-            }
+            IFretColorProvider colorProfile = DrumLaneCalculator.IsFiveLaneMode ? Player.ColorProfile.FiveLaneDrums : Player.ColorProfile.FourLaneDrums;
+            var visualStyle = DrumLaneCalculator.IsFiveLaneMode ? VisualStyle.FiveLaneDrums : VisualStyle.FourLaneDrums;
+
+            var drumLaneColors = DrumLaneCalculator.GetDrumLaneColors().Cast<int>();
+            Color[] fretColors = drumLaneColors.Select(colorProfile.GetFretColor).ToArray();
+            Color[] fretInnerColors = drumLaneColors.Select(colorProfile.GetFretInnerColor).ToArray();
+            Color[] fretParticleColors = drumLaneColors.Select(colorProfile.GetParticleColor).ToArray();
+            Color[] fretOpenParticleColors = drumLaneColors.Select(i => colorProfile.GetParticleColor(0)).ToArray();
+            Color kickColor = colorProfile.GetFretColor(0);
+            _fretArray.Initialize(
+                Player.ThemePreset,
+                visualStyle,
+                fretColors,
+                fretInnerColors,
+                fretParticleColors,
+                fretOpenParticleColors,
+                kickColor,
+                Player.Profile.LeftyFlip
+            );
+            _kickFretFlash.Initialize(colorProfile.GetParticleColor(0).ToUnityColor());
             
             // Initialize drum activation notes
             NoteTrack.SetDrumActivationFlags(Player.Profile.StarPowerActivationType);
@@ -292,10 +283,9 @@ namespace YARG.Gameplay.Player
 
         protected override void InitializeSpawnedLane(LaneElement lane, int index)
         {
-            var colorIndex = DrumLaneCalculator.GetPadColorIndex(index);
             var laneColor = DrumLaneCalculator.IsFiveLaneMode
                 ? Player.ColorProfile.FiveLaneDrums.GetNoteColor(index).ToUnityColor()
-                : Player.ColorProfile.FourLaneDrums.GetNoteColor((int)colorIndex).ToUnityColor();
+                : Player.ColorProfile.FourLaneDrums.GetNoteColor((int)DrumLaneCalculator.GetPadColorIndex(index)).ToUnityColor();
             lane.SetAppearance(Player.Profile.CurrentInstrument, index, DrumLaneCalculator.FretCount, laneColor);
         }
 
@@ -479,18 +469,6 @@ namespace YARG.Gameplay.Player
             var frame = new ReplayFrame(Player.Profile, EngineParams, Engine.EngineStats, ReplayInputs.ToArray());
             return (frame, Engine.EngineStats.ConstructReplayStats(Player.Profile.Name));
         }
-
-        private bool ShouldSwapSnareAndHiHat()
-        {
-            if (Player.Profile.CurrentInstrument is Instrument.FiveLaneDrums || DrumLaneCalculator.IsSplitMode)
-            {
-                return Player.Profile.SwapSnareAndHiHat;
-            }
-
-            return false;
-        }
-
-        private bool ShouldSwapCrashAndRide() => DrumLaneCalculator.IsSplitMode && Player.Profile.SwapCrashAndRide;
 
         protected override void UpdateVisuals(double visualTime)
         {
