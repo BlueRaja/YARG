@@ -60,10 +60,6 @@ namespace YARG.Gameplay.Player.Drums
 #endregion
 
 #region GetLaneIndex methods
-        /// <summary>
-        /// Returns the three display lane indices (1-4) for the three cymbals in 4-lane (non-split) mode.
-        /// LanesToShowCymbals only; no swap (swaps apply only in split mode).
-        /// </summary>
         private (int leftCymbalLane, int midCymbalLane, int rightCymbalLane) GetDefaultCymbalLanesForNonSplitMode()
         {
             return Player.Profile.LanesToShowCymbals switch
@@ -88,10 +84,6 @@ namespace YARG.Gameplay.Player.Drums
             };
         }
 
-        /// <summary>
-        /// Returns the three display lane indices (1-7) for the three cymbals (Yellow, Blue, Green)
-        /// based on LanesToShowCymbals, then applies SwapSnareAndHiHat and SwapCrashAndRide.
-        /// </summary>
         private (int leftCymbalLane, int midCymbalLane, int rightCymbalLane) GetCymbalDisplayLanes()
         {
             var (leftCymbalLane, midCymbalLane, rightCymbalLane) = IsSplitMode
