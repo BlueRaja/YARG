@@ -55,34 +55,7 @@ namespace YARG.Gameplay.Player.Drums
 
         public int GetFret(int pad)
         {
-            return IsSplitMode ? GetSplitFret(pad) : GetNonSplitLaneFret(pad);
-        }
-
-        private static int GetNonSplitLaneFret(int pad)
-        {
-            return (FourLaneDrumPad) pad switch
-            {
-                FourLaneDrumPad.RedDrum                                    => 0,
-                FourLaneDrumPad.YellowDrum or FourLaneDrumPad.YellowCymbal => 1,
-                FourLaneDrumPad.BlueDrum or FourLaneDrumPad.BlueCymbal     => 2,
-                FourLaneDrumPad.GreenDrum or FourLaneDrumPad.GreenCymbal   => 3,
-                _                                                          => -1,
-            };
-        }
-
-        private static int GetSplitFret(int pad)
-        {
-            return (FourLaneDrumPad) pad switch
-            {
-                FourLaneDrumPad.RedDrum      => 0,
-                FourLaneDrumPad.YellowCymbal => 1,
-                FourLaneDrumPad.YellowDrum   => 2,
-                FourLaneDrumPad.BlueCymbal   => 3,
-                FourLaneDrumPad.BlueDrum     => 4,
-                FourLaneDrumPad.GreenCymbal  => 5,
-                FourLaneDrumPad.GreenDrum    => 6,
-                _                            => -1,
-            };
+            return GetDisplayLane(pad) - 1; // Frets are the same as display lanes, but 0-based instead of 1-based for some reason
         }
 #endregion
 

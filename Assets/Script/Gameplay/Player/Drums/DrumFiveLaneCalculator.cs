@@ -51,15 +51,7 @@ namespace YARG.Gameplay.Player.Drums
 
         public int GetFret(int pad)
         {
-            return (FiveLaneDrumPad) pad switch
-            {
-                FiveLaneDrumPad.Red    => 0,
-                FiveLaneDrumPad.Yellow => 1,
-                FiveLaneDrumPad.Blue   => 2,
-                FiveLaneDrumPad.Orange => 3,
-                FiveLaneDrumPad.Green  => 4,
-                _                      => -1,
-            };
+            return GetDisplayLane(pad) - 1; // Frets are the same as display lanes, but 0-based instead of 1-based for some reason
         }
 #endregion
 
