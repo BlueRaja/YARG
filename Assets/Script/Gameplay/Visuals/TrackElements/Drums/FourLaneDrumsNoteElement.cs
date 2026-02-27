@@ -71,7 +71,7 @@ namespace YARG.Gameplay.Visuals
             var colors = Player.Player.ColorProfile.FourLaneDrums;
 
             var colorIndex = Player.DrumLaneCalculator.GetPadColorIndex(NoteRef.Pad);
-            var colorNoStarPower = colors.GetNoteColor((int)colorIndex);
+            var colorNoStarPower = colors.GetNoteColor(colorIndex);
             var color = colorNoStarPower;
             Debug.Log($"Color for lane {NoteRef.Pad} is index {colorIndex} and color {colorNoStarPower}");
 
@@ -82,7 +82,7 @@ namespace YARG.Gameplay.Visuals
             else if (NoteRef.IsStarPowerActivator && Player.Engine.CanStarPowerActivate && !Player.Engine.BaseStats.IsStarPowerActive)
             {
                 float pulse = (float) GameManager.BeatEventHandler.Visual.StrongBeat.CurrentPercentage;
-                var fullColor = colors.GetActivationNoteColor((int)colorIndex);
+                var fullColor = colors.GetActivationNoteColor(colorIndex);
                 color = Color.FromArgb(
                     fullColor.A,
                     GetColorFromPulse(fullColor.R, pulse),
@@ -92,7 +92,7 @@ namespace YARG.Gameplay.Visuals
             }
             else if (IsStarPowerVisible)
             {
-                color = colors.GetNoteStarPowerColor((int)colorIndex);
+                color = colors.GetNoteStarPowerColor(colorIndex);
             }
 
             // Set the note color if not hidden

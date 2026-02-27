@@ -20,16 +20,16 @@ using ColorProfileIndex = YARG.Core.Game.ColorProfile.FourLaneDrumsColors.ColorP
 
 namespace YARG.Gameplay.Player.Drums
 {
-    public class DrumLaneCalculator
+    public class DrumFourLaneCalculator : IDrumLaneCalculator
     {
         private YargPlayer Player { get; }
-        public bool IsFiveLaneMode => Player.Profile.CurrentInstrument == Instrument.FiveLaneDrums;
+        public bool IsFiveLaneMode => false;
         public bool IsSplitMode => Player.Profile.CurrentInstrument is Instrument.ProDrums && Player.Profile.SplitProTomsAndCymbals;
         private bool ShouldSwapSnareAndHiHat => (IsFiveLaneMode || IsSplitMode) && Player.Profile.SwapSnareAndHiHat;
         private bool ShouldSwapCrashAndRide => IsSplitMode && Player.Profile.SwapCrashAndRide;
         private bool LeftyFlip => Player.Profile.LeftyFlip;
 
-        public DrumLaneCalculator(YargPlayer player)
+        public DrumFourLaneCalculator(YargPlayer player)
         {
             Player = player;
         }
@@ -39,52 +39,26 @@ namespace YARG.Gameplay.Player.Drums
 #region GetFret methods
         public int GetFret(DrumsAction action)
         {
-            if (IsFiveLaneMode)
+            var pad = action switch
             {
-                var pad = action switch
-                {
-                    DrumsAction.RedDrum => (int)FiveLaneDrumPad.Red,
-                    DrumsAction.YellowCymbal => (int)FiveLaneDrumPad.Yellow,
-                    DrumsAction.BlueDrum => (int)FiveLaneDrumPad.Blue,
-                    DrumsAction.OrangeCymbal => (int)FiveLaneDrumPad.Orange,
-                    DrumsAction.GreenDrum => (int)FiveLaneDrumPad.Green,
-                    _ => -1,
-                };
-                return GetFret(pad);
-            }
-            else
-            {
-                var pad = action switch
-                {
-                    DrumsAction.RedDrum      => (int) FourLaneDrumPad.RedDrum,
-                    DrumsAction.YellowDrum   => (int) FourLaneDrumPad.YellowDrum,
-                    DrumsAction.BlueDrum     => (int) FourLaneDrumPad.BlueDrum,
-                    DrumsAction.GreenDrum    => (int) FourLaneDrumPad.GreenDrum,
-                    DrumsAction.YellowCymbal => (int) FourLaneDrumPad.YellowCymbal,
-                    DrumsAction.BlueCymbal   => (int) FourLaneDrumPad.BlueCymbal,
-                    DrumsAction.GreenCymbal  => (int) FourLaneDrumPad.GreenCymbal,
-                    _                        => -1,
-                };
-                return GetFret(pad);
-            }
+                DrumsAction.RedDrum      => (int) FourLaneDrumPad.RedDrum,
+                DrumsAction.YellowDrum   => (int) FourLaneDrumPad.YellowDrum,
+                DrumsAction.BlueDrum     => (int) FourLaneDrumPad.BlueDrum,
+                DrumsAction.GreenDrum    => (int) FourLaneDrumPad.GreenDrum,
+                DrumsAction.YellowCymbal => (int) FourLaneDrumPad.YellowCymbal,
+                DrumsAction.BlueCymbal   => (int) FourLaneDrumPad.BlueCymbal,
+                DrumsAction.GreenCymbal  => (int) FourLaneDrumPad.GreenCymbal,
+                _                        => -1,
+            };
+            return GetFret(pad);
         }
 
         public int GetFret(int pad)
         {
-            if (IsFiveLaneMode)
-            {
-                return GetFiveLaneFret(pad);
-            }
-
-            if (IsSplitMode)
-            {
-                return GetSplitFret(pad);
-            }
-
-            return GetFourLaneFret(pad);
+            return IsSplitMode ? GetSplitFret(pad) : GetNonSplitLaneFret(pad);
         }
 
-        private static int GetFourLaneFret(int pad)
+        private static int GetNonSplitLaneFret(int pad)
         {
             return (FourLaneDrumPad) pad switch
             {
@@ -93,19 +67,6 @@ namespace YARG.Gameplay.Player.Drums
                 FourLaneDrumPad.BlueDrum or FourLaneDrumPad.BlueCymbal     => 2,
                 FourLaneDrumPad.GreenDrum or FourLaneDrumPad.GreenCymbal   => 3,
                 _                                                          => -1,
-            };
-        }
-
-        private static int GetFiveLaneFret(int pad)
-        {
-            return (FiveLaneDrumPad) pad switch
-            {
-                FiveLaneDrumPad.Red    => 0,
-                FiveLaneDrumPad.Yellow => 1,
-                FiveLaneDrumPad.Blue   => 2,
-                FiveLaneDrumPad.Orange => 3,
-                FiveLaneDrumPad.Green  => 4,
-                _                      => -1,
             };
         }
 
@@ -208,12 +169,6 @@ namespace YARG.Gameplay.Player.Drums
 
         public int GetDisplayLane(int pad)
         {
-            if (IsFiveLaneMode)
-            {
-                // Five lane pads (FiveLaneDrumPad) are 0-5 and map directly to display lane indices
-                return pad;
-            }
-
             var (leftCymbalLane, midCymbalLane, rightCymbalLane) = GetCymbalDisplayLanes();
             var (redDrum, yellowDrum, blueDrum, greenDrum) = GetDrumDisplayLanes();
 
@@ -234,45 +189,18 @@ namespace YARG.Gameplay.Player.Drums
 #endregion
 
 #region Colors
-        public ColorProfileIndex[] GetDrumLaneColors()
+        public int[] GetDrumLaneColors()
         {
-            if(IsFiveLaneMode)
-            {
-                // Small hack: The two ColorProfileIndex enums aren't technically swappable, but they're immediately being passed to the
-                // correct ColorProfile so it doesn't really matter
-                return Get5LaneDrumLaneColors().Cast<ColorProfileIndex>().ToArray();
-            }
-            
             var drums = new[] { (int)FourLaneDrumPad.RedDrum, (int)FourLaneDrumPad.YellowDrum, (int)FourLaneDrumPad.BlueDrum, (int)FourLaneDrumPad.GreenDrum };
             var cymbals = new[] { (int)FourLaneDrumPad.YellowCymbal, (int)FourLaneDrumPad.BlueCymbal, (int)FourLaneDrumPad.GreenCymbal };
             var pads = IsSplitMode
                 ? drums.Concat(cymbals).ToArray()
                 : drums;
             var colorsByLane = pads.ToDictionary(pad => GetDisplayLane(pad), GetPadColorIndex);
-            return Enumerable.Range(0, FretCount + 1).Select(i => colorsByLane.GetValueOrDefault(i)).ToArray();
+            return Enumerable.Range(0, FretCount + 1).Select(i => (int)colorsByLane.GetValueOrDefault(i)).ToArray();
         }
 
-        private ColorProfile.FiveLaneDrumsColors.ColorProfileIndex[] Get5LaneDrumLaneColors()
-        {
-            ColorProfile.FiveLaneDrumsColors.ColorProfileIndex[] drumOrder = {
-                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.RedDrum,
-                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.YellowDrum,
-                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.BlueDrum,
-                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.OrangeDrum,
-                ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.GreenDrum
-            };
-            if(LeftyFlip)
-            {
-                drumOrder = drumOrder.Reverse().ToArray();
-            }
-            if(ShouldSwapSnareAndHiHat)
-            {
-                (drumOrder[0], drumOrder[1]) = (drumOrder[1], drumOrder[0]);
-            }
-            return new[] { ColorProfile.FiveLaneDrumsColors.ColorProfileIndex.Kick }.Concat(drumOrder).ToArray();
-        }
-
-        public ColorProfileIndex GetPadColorIndex(int pad)
+        public int GetPadColorIndex(int pad)
         {
             var (leftCymbalColor, midCymbalColor, rightCymbalColor) = GetCymbalColors();
             var color = (FourLaneDrumPad)pad switch
@@ -287,7 +215,7 @@ namespace YARG.Gameplay.Player.Drums
                 FourLaneDrumPad.GreenCymbal  => rightCymbalColor,
                 _ => ColorProfileIndex.RedDrum,
             };
-            return LeftyFlip ? UpdateColorForLeftyFlip(color) : color;
+            return LeftyFlip ? (int)UpdateColorForLeftyFlip(color) : (int)color;
         }
 
         private (ColorProfileIndex leftCymbalColor, ColorProfileIndex midCymbalColor, ColorProfileIndex rightCymbalColor) GetCymbalColors()

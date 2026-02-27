@@ -34,7 +34,7 @@ namespace YARG.Gameplay.Player
         [SerializeField]
         private KickFretFlash _kickFretFlash;
 
-        public DrumLaneCalculator DrumLaneCalculator { get; private set; }
+        public IDrumLaneCalculator DrumLaneCalculator { get; private set; }
 
         public override bool ShouldUpdateInputsOnResume => false;
 
@@ -54,7 +54,9 @@ namespace YARG.Gameplay.Player
         public override void Initialize(int index, YargPlayer player, SongChart chart, TrackView trackView, StemMixer mixer,
             int? currentHighScore)
         {
-            DrumLaneCalculator = new DrumLaneCalculator(player);
+            // Need to set DrumLaneCalculator before calling base.Initialize because it's used by FinishInitialization()
+            bool isFiveLaneMode = player.Profile.CurrentInstrument == Instrument.FiveLaneDrums;
+            DrumLaneCalculator = isFiveLaneMode ? new DrumFiveLaneCalculator(player) : new DrumFourLaneCalculator(player);
             base.Initialize(index, player, chart, trackView, mixer, currentHighScore);
         }
 
@@ -271,8 +273,8 @@ namespace YARG.Gameplay.Player
         protected override void InitializeSpawnedLane(LaneElement lane, int index)
         {
             var laneColor = DrumLaneCalculator.IsFiveLaneMode
-                ? Player.ColorProfile.FiveLaneDrums.GetNoteColor(index).ToUnityColor()
-                : Player.ColorProfile.FourLaneDrums.GetNoteColor((int)DrumLaneCalculator.GetPadColorIndex(index)).ToUnityColor();
+                ? Player.ColorProfile.FiveLaneDrums.GetNoteColor(DrumLaneCalculator.GetPadColorIndex(index)).ToUnityColor()
+                : Player.ColorProfile.FourLaneDrums.GetNoteColor(DrumLaneCalculator.GetPadColorIndex(index)).ToUnityColor();
             lane.SetAppearance(Player.Profile.CurrentInstrument, index, DrumLaneCalculator.FretCount, laneColor);
         }
 
